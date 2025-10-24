@@ -2,7 +2,39 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
+from dotenv import load_dotenv
 from sklearn.metrics import mean_absolute_error
+from openai import OpenAI
+import os
+
+load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
+def ai_analyze_sleep_patterns(df: pd.DataFrame, model="gpt-4o-mini"):
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    
+    # Describe data briefly for the model
+    summary_prompt = f"""
+    You are a data analyst. Analyze this summary of daily sleep and health data
+    to identify patterns and insights about how exercise, heart rate,
+    and other metrics relate to sleep quality and duration.
+
+    Data sample:
+    {df.head(10).to_markdown()}
+
+    Please provide:
+    - Key patterns found in the data
+    - Factors most correlated with good sleep
+    - Recommendations to improve sleep quality
+    - Any anomalies or interesting findings
+    """
+
+    response = client.responses.create(
+        model=model,
+        input=summary_prompt,
+        temperature=0.7,
+    )
+
+    return response.output[0].content[0].text
 
 def engineer_features(daily_df, sleep_times, health_df=None):
     df = daily_df.copy()
