@@ -11,11 +11,13 @@ load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
-def ai_analyze_sleep_patterns(df: pd.DataFrame, model=os.getenv("GPT_MODEL"), mode="coach"):
+def ai_analyze_sleep_patterns(df: pd.DataFrame, model=os.getenv("GPT_MODEL"), mode="coach", prompt=None):
     if df.empty:
         return "No data available for analysis."
     sample_data = df.head(10).to_markdown(index=False)
-    if mode == "coach":
+    if prompt:
+        summary_prompt = prompt
+    elif mode == "coach":
         summary_prompt = f"""
         You are a friendly sleep coach. Analyze this summary of daily sleep data.
 
